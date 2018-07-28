@@ -1,0 +1,18 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  sonarqube:
+    image: sonarqube
+    ports:
+      - 9000:9000
+      - 9092:9092
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    ports:
+      - 8080:8080
+      - 5000:5000
+    environment:
+      jenkins_home: ~/apps/build-server/jenkins
