@@ -1,0 +1,65 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  mysql:
+    image: mariadb
+    restart: always
+    volumes:
+       - ~/apps/build-server/mysql-server/data:/var/lib/mysql/data
+    environment:
+      MYSQL_ROOT_PASSWORD: agiledev@2018
+
+  postgresql:
+    image: postgres
+    restart: always
+    #volumes:
+    #   - ~/apps/build-server/postgresql-server/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: sonarqube
+      POSTGRES_USER: sonarqube
+      POSTGRES_PASSWORD: agiledev@2018
+
+  adminer:
+    image: adminer
+    restart: always
+    links:
+      - mysql:db
+    ports:
+      - 8182:8080
+    environment:
+      PMA_HOST: mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mysql:db
+    ports:
+      - 8181:80
+    environment:
+      MYSQL_USERNAME: root
+      MYSQL_ROOT_PASSWORD: agiledev@2018
+      PMA_HOST: mysql
+
+  teamcity-server:
+    image: jetbrains/teamcity-server:latest
+    restart: always
+    ports:
+      - 8111:8111
+    volumes:
+      - ~/apps/build-server/teamcity-server/data:/data/teamcity_server/datadir
+      - ~/apps/build-server/teamcity-server/logs:/opt/teamcity/logs
+
+  sonarqube:
+    image: sonarqube
+    ports:
+      - 9000:9000
+      - 9092:9092
+    links:
+      - postgresql:db
+    environment:
+      PMA_HOST: postgresql
+      SONARQUBE_JDBC_USERNAME: sonarqube
+      SONARQUBE_JDBC_PASSWORD: agiledev@2018
+      SONARQUBE_JDBC_URL: "jdbc:postgresql://postgresql/sonarqube"
